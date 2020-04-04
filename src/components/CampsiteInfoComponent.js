@@ -1,6 +1,7 @@
-import React from 'react';
-import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import React, { Component } from 'react';
+import { Card, CardImg, CardText, CardBody, Breadcrumb, BreadcrumbItem, Button, Modal, ModalHeader, ModalBody, Label, Row, Col } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { Control, LocalForm, Errors } from 'react-redux-form';
 
     
 function RenderCampsite({ campsite }) {
@@ -51,6 +52,7 @@ function CampsiteInfo(props) {
                 <div className="row">
                     <RenderCampsite campsite={props.campsite} />
                     <RenderComments comments={props.comments} />
+                    <CommentForm />
                 </div>
             </div>
         );
@@ -58,5 +60,143 @@ function CampsiteInfo(props) {
     return <div />;
 }
 
+const required = val => val && val.length;
+const maxLength = len => val => !val || (val.length <= len);
+const minLength = len => val => val && (val.length >= len);
+
+class CommentForm extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            rating: 1,
+            author: '',
+            comment:'',
+            touched: {
+                rating: false,
+                author: false,
+                text: false,
+            },
+            isModalOpen: false
+        };
+        this.toggleModal = this.toggleModal.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    toggleModal() {
+        this.setState({
+            isModalOpen: !this.state.isModalOpen
+        });
+    }
+
+    handleSubmit(values) {
+        console.log("Current state is: " + JSON.stringify(values));
+        alert("Current state is: " + JSON.stringify(values));
+    }
+
+    render() {
+        return(
+            <React.Fragment>
+                <span className="mb-1">
+                    <Button outline onClick={this.toggleModal}>
+                        <i className="fa fa-pencil fa-lg" />Submit Comment
+                </Button>
+                </span>
+
+                <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+                    <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
+                    <ModalBody>
+                        <LocalForm onSubmit={values => this.handleSubmit(values)}>
+                            <Row className="form-group">
+                                <Label htmlFor="rating" md={2}>Rating</Label>
+                                <Col md={4}>
+                                    <Control.select model=".rating" id="rating" name="rating"
+                                        className="form-control"
+                                        validators={{
+                                            required
+                                        }}>
+                                        <option>Pick a rating of 1-5</option>
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                    </Control.select>
+                                    <Errors
+                                        className="text-danger"
+                                        model=".rating"
+                                        show="touched"
+                                        component="div"
+                                        messages={{
+                                            required: 'Required'
+                                        }}
+                                        />
+                                </Col>
+                            </Row>
+                            <Row className="form-group">
+                                <Label htmlFor="author" md={2}>Author</Label>
+                                <Col md={4}>
+                                    <Control.text model=".author" id="author" name="author"
+                                        placeholder="Name"
+                                        className="form-control"
+                                        validators={{
+                                            required,
+                                            minLength: minLength(2),
+                                            maxLength: maxLength(30)
+                                        }}
+                                    />
+                                    <Errors
+                                        className="text-danger"
+                                        model=".author"
+                                        show="touched"
+                                        component="div"
+                                        messages={{
+                                            required: 'Required',
+                                            minLength: 'Must be at least 2 characters',
+                                            maxLength: 'Must be 30 characters or less'
+                                        }}
+                                        />
+                                </Col>
+                            </Row>
+                            <Row className="form-group">
+                                <Label htmlFor="comment" md={2}>Comment</Label>
+                                <Col md={10}>
+                                    <Control.textarea model=".text" id="text" name="text"
+                                        placeholder="Your Comment Goes Here"
+                                        className="form-control"
+                                        rows="6"
+                                        validators={{
+                                            required,
+                                            minLength: minLength(2),
+                                            maxLength: maxLength(150)
+                                        }}
+                                    />
+                                    <Errors
+                                        className="text-danger"
+                                        model=".text"
+                                        show="touched"
+                                        component="div"
+                                        messages={{
+                                            required: 'Required',
+                                            minLength: 'Must be at least 2 characters',
+                                            maxLength: 'Must be 150 characters or less'
+                                        }}
+                                        />
+                                </Col>
+                            </Row>
+                            <Row className="form-group">
+                                    <Col md={{ size: 10, offset: 2 }}>
+                                        <Button type="submit" color="primary">
+                                            Submit
+                                    </Button>
+                                    </Col>
+                                </Row>
+                        </LocalForm>
+                    </ModalBody>
+                </Modal>
+            </React.Fragment>
+        );
+    }
+}
 
 export default CampsiteInfo;
