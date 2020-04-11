@@ -7,6 +7,7 @@ import Footer from './FooterComponent';
 import Home from './HomeComponent';
 import Contact from './ContactComponent';
 import About from './AboutComponent';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { actions } from 'react-redux-form';
@@ -69,14 +70,18 @@ class Main extends Component {
       return (
           <div>
               <Header />
-              <Switch>
-                    <Route path='/home' component={HomePage} />
-                    <Route exact path='/directory' render={() => <Directory campsites={this.props.campsites} />} />
-                    <Route exact path='/directory/:campsiteId' component={CampsiteWithId} />
-                    <Route exact path='/contactus' render={() => <Contact resetFeedbackForm={this.props.resetFeedbackForm} /> } />
-                    <Route exact path='/aboutus' render={() => <About partners={this.props.partners} />} />
-                    <Redirect to='/home' />
-              </Switch>
+              <TransitionGroup>
+                  <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
+                      <Switch>
+                          <Route path='/home' component={HomePage} />
+                          <Route exact path='/directory' render={() => <Directory campsites={this.props.campsites} />} />
+                          <Route exact path='/directory/:campsiteId' component={CampsiteWithId} />
+                          <Route exact path='/contactus' render={() => <Contact resetFeedbackForm={this.props.resetFeedbackForm} />} />
+                          <Route exact path='/aboutus' render={() => <About partners={this.props.partners} />} />
+                          <Redirect to='/home' />
+                      </Switch>
+                  </CSSTransition>
+              </TransitionGroup>
               <Navbar dark color="primary">
               <div className="container">
                   <NavbarBrand href="/">NuCamp</NavbarBrand>
